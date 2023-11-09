@@ -16,6 +16,8 @@ spark-submit --class com.spark_example.App --master spark://munjal-upadhyay.loca
 
 spark-submit --class com.spark_example.App --master spark://munjal-upadhyay.local:7077 --deploy-mode client --num-executors 1 ./spark_example-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
+spark-submit --class com.spark_example.App --master spark://munjal-upadhyay.local:7077 --deploy-mode cluster --num-executors 1 ./spark_example-0.0.1-SNAPSHOT-jar-with-dependencies.jar
+
 
 application logs will be under : SPARK_HOME/work directory
 in my case it is : /opt/homebrew/Cellar/apache-spark/3.5.0/libexec/work/driver-20231106183303-0003
