@@ -2,11 +2,16 @@ package com.spark_example;
 
 import com.spark_example.model.Employee;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import org.apache.ivy.util.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.api.java.function.FlatMapFunction;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Encoders;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SparkSession;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +44,10 @@ public class App
         logger.error("this is driver logs : going ahead... --> ");
 
         JavaRDD<Employee> employeeJavaRDD = mapPartitionExample(stringJRDD);
+        employeeJavaRDD.cache();
+
+        logger.error( " number of partitions are {} ", employeeJavaRDD.getNumPartitions());
+        //employeeJavaRDD.glom().collect().forEach(ele ->logger.error(" glome out"+ele ));
 
         logger.error("this is driver logs : going ahead 1 ... --> ");
 
@@ -49,9 +58,16 @@ public class App
 
     @Nullable
     private static JavaRDD<Employee> mapPartitionExample(JavaRDD<String> stringJRDD) {
+
         JavaRDD<Employee> employeeJavaRDD = stringJRDD.mapPartitions(stringIterator -> {
             List<Employee> empList = new ArrayList<>();
+            // below line is a myth, you can not create a DB connection and share across all worker nodes ,
+            // commone sense is you can not share a connection across multiple nodes just by passiong the object as parametr.
+            // what you should do is : the db connection should initialize only per partition. and not for each record in the partition.
+            // that can be achieved by above line.
             logger.error("mapPartitions initialization : this should be called only once");
+
+            System.out.println("this should be called only once per partition");
 
             if (stringIterator==null){
                 return null;
@@ -86,6 +102,9 @@ public class App
                 logger.error("cereated object {}", emp);
                 empList.add(emp);
             });
+
+            logger.error("mapPartitions count {} ",empList.size());
+
             return empList.iterator(); // note : here we are returning iterator.
         });
         return employeeJavaRDD;
@@ -111,6 +130,12 @@ public class App
 
     public static void stopJob(SparkSession spark) {
         logger.info("stopping spark called...");
+        try {
+            Thread.sleep(6000);
+            logger.info("m=stopJob; delay finised, going to stop");
+        } catch (Exception e) {
+            logger.error("m=stopJob; exception in delay; Exception={}", StringUtils.getStackTrace(e));
+        }
         logger.info("stopping spark app");
         spark.stop();
         logger.info("stopping spark driver");
