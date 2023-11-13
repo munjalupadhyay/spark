@@ -9,6 +9,8 @@ import org.apache.ivy.util.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.FlatMapFunction;
+import org.apache.spark.api.java.function.ForeachFunction;
+import org.apache.spark.api.java.function.MapPartitionsFunction;
 import org.apache.spark.rdd.RDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Encoders;
@@ -39,28 +41,29 @@ public class App
 
     private static void job11(SparkSession spark) {
 
-        JavaRDD<String> stringJRDD = readTextFile(spark);
-        stringJRDD.cache(); // it is always better to cache whn you read input from text file or db.
-        printEachElementOfRDD(stringJRDD);
+        Dataset<String> stringDS = readTextFile(spark);
+        stringDS.cache(); // it is always better to cache whn you read input from text file or db.
+        printEachElementOfRDD(stringDS);
         logger.error("this is driver logs : going ahead... --> ");
 
-        JavaRDD<Employee> employeeJavaRDD = mapPartitionExample(stringJRDD);
-        employeeJavaRDD.cache();
+        Dataset<Employee> employeeDS = mapPartitionExample(stringDS);
+        employeeDS.cache();
 
-        logger.error( " number of partitions are {} ", employeeJavaRDD.getNumPartitions());
-        //employeeJavaRDD.glom().collect().forEach(ele ->logger.error(" glome out"+ele ));
+        logger.error( " number of partitions are {} ", employeeDS.javaRDD().getNumPartitions());
+        //employeeDS.glom().collect().forEach(ele ->logger.error(" glome out"+ele ));
 
         logger.error("this is driver logs : going ahead 1 ... --> ");
 
-        printEachElementOfRDD(employeeJavaRDD);
+        employeeDS.foreach((ForeachFunction<Employee>)str -> logger.error("printing value of {} ",str));
 
-        logger.error("count {}",employeeJavaRDD.count());
+        logger.error("count {}",employeeDS.count());
     }
 
     @Nullable
-    private static JavaRDD<Employee> mapPartitionExample(JavaRDD<String> stringJRDD) {
+    private static Dataset<Employee> mapPartitionExample(Dataset<String> stringDS) {
 
-        JavaRDD<Employee> employeeJavaRDD = stringJRDD.mapPartitions(stringIterator -> {
+        Dataset<Employee> employeeJavaRDD = stringDS.mapPartitions(
+            (MapPartitionsFunction<String, Employee>) stringIterator -> {
             List<Employee> empList = new ArrayList<>();
             // below line is a myth, you can not create a DB connection and share across all worker nodes ,
             // commone sense is you can not share a connection across multiple nodes just by passiong the object as parametr.
@@ -107,24 +110,20 @@ public class App
             logger.error("mapPartitions count {} ",empList.size());
 
             return empList.iterator(); // note : here we are returning iterator.
-        });
+        },Encoders.bean(Employee.class));
         return employeeJavaRDD;
     }
 
-    private static void printEachElementOfRDD(JavaRDD<?> stringJRDD) {
-        stringJRDD.foreach(str -> logger.error("printing value of {} ",String.valueOf(str)));
+    private static void printEachElementOfRDD(Dataset<String> stringJRDD) {
+        stringJRDD.foreach((ForeachFunction<String>)str -> logger.error("printing value of {} ",str));
     }
 
-    private static JavaRDD<String> readTextFile(SparkSession spark) {
+    private static Dataset<String> readTextFile(SparkSession spark) {
         String filePath = "/Users/munjal-upadhyay/Downloads/word.txt";
 
         //you can load dataset like below , this is how we load s3 files also.
-        // Dataset<String> ample = spark.read().textFile(filePath).repartition(3);
-
-        JavaRDD<String> stringJRDD = spark.sparkContext()
-            .textFile(filePath, 3)
-            .toJavaRDD();
-        return stringJRDD;
+        Dataset<String> stringDS = spark.read().textFile(filePath).repartition(3);
+        return stringDS;
     }
 
 
@@ -137,7 +136,7 @@ public class App
     public static void stopJob(SparkSession spark) {
         logger.info("stopping spark called...");
         try {
-            Thread.sleep(6000);
+            Thread.sleep(600000);
             logger.info("m=stopJob; delay finised, going to stop");
         } catch (Exception e) {
             logger.error("m=stopJob; exception in delay; Exception={}", StringUtils.getStackTrace(e));

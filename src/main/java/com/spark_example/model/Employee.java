@@ -10,6 +10,10 @@ public class Employee implements Serializable {
   String name;
   String surname;
 
+
+  public Employee() {
+  }
+
   public Employee(long id, String name, String surname) {
     this.id = id;
     this.name = name;
