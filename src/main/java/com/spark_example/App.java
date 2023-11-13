@@ -40,6 +40,7 @@ public class App
     private static void job11(SparkSession spark) {
 
         JavaRDD<String> stringJRDD = readTextFile(spark);
+        stringJRDD.cache(); // it is always better to cache whn you read input from text file or db.
         printEachElementOfRDD(stringJRDD);
         logger.error("this is driver logs : going ahead... --> ");
 
@@ -115,8 +116,13 @@ public class App
     }
 
     private static JavaRDD<String> readTextFile(SparkSession spark) {
+        String filePath = "/Users/munjal-upadhyay/Downloads/word.txt";
+
+        //you can load dataset like below , this is how we load s3 files also.
+        // Dataset<String> ample = spark.read().textFile(filePath).repartition(3);
+
         JavaRDD<String> stringJRDD = spark.sparkContext()
-            .textFile("/Users/munjal-upadhyay/Downloads/word.txt", 3)
+            .textFile(filePath, 3)
             .toJavaRDD();
         return stringJRDD;
     }

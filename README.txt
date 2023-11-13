@@ -30,7 +30,7 @@ difference between cache() and persist() : https://sparkbyexamples.com/spark/spa
 
 
 Type of operation in spark :
-  Action : this will not return rdd. count(),collect(),top()
+  Action : this will not return rdd. count(),collect(),top(),forEach()
   Transformation : this will return rdd. all transformation are lazy.
                    so if you do not call action then no operation will be executed.
 
@@ -62,4 +62,26 @@ when to use cache and when not to use :
   so this might reduce your performance because your cached rdd will be recompted again.
 
   read more : https://www.unraveldata.com/resources/to-cache-or-not-to-cache/
+
+reason to use mapPartition over map() :
+  read below url. there are very important obseration.
+  read more : https://dzone.com/articles/mappartitions-in-apache-spark-5-key-benefits
+              https://ajaygupta-spark.medium.com/map-vs-mappartitions-in-apache-spark-765247634640#:~:text=Meaning%20the%20processing%20function%20provided,to%20single%20input%20partition%2C%20together.
+
+you can convert your rdd to dataset :
+  https://stackoverflow.com/questions/45326796/convert-rdd-to-dataset-in-java-spark
+
+RDD vs. FataFrame vs. DataSet : usuallly it is better to use dataset.
+
+  RDD : basic objects
+  Dataframe : created on top of RDD. here you work wil unstructured data (of type Row).
+  Dataset : created on top of Dataframe. here you work with structured data (of your created object type)
+
+
+  read more :
+    https://www.databricks.com/blog/2016/07/14/a-tale-of-three-apache-spark-apis-rdds-dataframes-and-datasets.html
+    https://data-flair.training/blogs/apache-spark-rdd-vs-dataframe-vs-dataset/
+    https://sparkbyexamples.com/spark/spark-rdd-vs-dataframe-vs-dataset/
+
+
 
