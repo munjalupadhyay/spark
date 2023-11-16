@@ -84,4 +84,18 @@ RDD vs. FataFrame vs. DataSet : usuallly it is better to use dataset.
     https://sparkbyexamples.com/spark/spark-rdd-vs-dataframe-vs-dataset/
 
 
+Use Dataset over RDD :
+  https://sparkbyexamples.com/spark/spark-performance-tuning/
+
+Broadcast in spark :
+  this method is used to broadcast variable(object) to all nodes in cluster. this variable will be cached in each nodes.
+  this variable are read-only, and can not be modified by nodes.
+  we can use redis cache as a alternative of broadcast : but if you reads are very frequent to this objects then it might
+  increase the latency of redis nodes. because all the worker nodes of spark will hit one redis node to read the variable.
+  that is why if you remember, we do not store contest-template-details(will be in thousands) info in redis. because for each record of contest-join we need detailed info for contest-template. this will increase the latency of redis
+
+
+
+
+
 

@@ -1,5 +1,6 @@
 package com.spark_example;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spark_example.model.Employee;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,8 @@ import scala.reflect.api.Symbols.SymbolApi;
 public class App
 {
     private static Logger logger = LoggerFactory.getLogger(App.class);
+
+    private static ObjectMapper mapper = new ObjectMapper();
     public static void main( String[] args )
     {
         SparkSession spark = getSparkSession();
@@ -98,13 +101,15 @@ public class App
 
             stringIterator.forEachRemaining(str -> {
                 logger.error("creating objects for "+str);
-                String[] fields = str.split(",");
-                Long id = Long.parseLong(fields[0]);
-                String name = String.valueOf(fields[1]);
-                String surname = String.valueOf(fields[2]);
-                Employee emp = new Employee(id, name, surname);
-                logger.error("cereated object {}", emp);
-                empList.add(emp);
+                try {
+                    Employee fromJson = mapper.readValue(str,
+                        Employee.class);
+                    logger.error("created objects for "+fromJson);
+                    empList.add(fromJson);
+                } catch (Exception e) {
+                    logger.error("Exception while converting to teamDetails due to {}",
+                        StringUtils.getStackTrace(e));
+                }
             });
 
             logger.error("mapPartitions count {} ",empList.size());
@@ -136,7 +141,7 @@ public class App
     public static void stopJob(SparkSession spark) {
         logger.info("stopping spark called...");
         try {
-            Thread.sleep(600000);
+            Thread.sleep(6000);
             logger.info("m=stopJob; delay finised, going to stop");
         } catch (Exception e) {
             logger.error("m=stopJob; exception in delay; Exception={}", StringUtils.getStackTrace(e));
