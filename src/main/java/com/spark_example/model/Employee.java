@@ -16,6 +16,8 @@ public class Employee implements Serializable {
 
   Double salary;
 
+  int pin;
+
 
   public Employee() {
   }

@@ -1,5 +1,5 @@
-{ "id": 1, "name": "Manohar", "surname": "Shashtri", "salary": 5000.00 }
-{ "id": 2, "name": "Chulbul", "surname": "Pandey", "salary": 10000.10 }
-{ "id": 3, "name": "Lal", "surname": "Bahadur", "salary": 5500 }
-{ "id": 4, "name": "ChandraShekhar", "surname": "Azad", "salary": 6000 }
-{ "id": 5, "name": "BR", "surname": "Ambedkar", "salary": 6500 }
+{ "id": 1, "name": "Manohar", "surname": "Shashtri", "salary": 5000.00 , "pin" : 560058}
+{ "id": 2, "name": "Chulbul", "surname": "Pandey", "salary": 10000.10 ,"pin" : 560059}
+{ "id": 3, "name": "Lal", "surname": "Bahadur", "salary": 5500 ,"pin" : 540058}
+{ "id": 4, "name": "ChandraShekhar", "surname": "Azad", "salary": 6000 ,"pin" : 540058}
+{ "id": 5, "name": "BR", "surname": "Ambedkar", "salary": 6500 ,"pin" : 760078}

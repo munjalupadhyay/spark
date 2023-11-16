@@ -1,0 +1,3 @@
+{"cityname": "pune", "shortform":"pn","pincode":560058}
+{"cityname": "bangalore", "shortform":"bng","pincode":560059}
+{"cityname": "laddakh", "shortform":"ladd","pincode":540058}
